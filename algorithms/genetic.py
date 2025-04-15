@@ -6,6 +6,7 @@ from algorithms.inversion import inversion
 from algorithms.fitness import evaluate_fitness
 from algorithms.chromosome import Chromosome
 from algorithms.individual import Individual
+from apps.plotter import Plotter
 import random
 import numpy as np
 import time
@@ -24,6 +25,8 @@ def run_genetic_algorithm():
     
     bounds = (config.range_start, config.range_end)
 
+    plotter = Plotter()
+
     start_time = time.time()
 
     population = [Individual(num_variables=num_variables, precision=precision) for _ in range(population_size)]
@@ -38,6 +41,10 @@ def run_genetic_algorithm():
         best_individual = min(population, key=lambda ind: ind.fitness)
         optimization_func = min
 
+    avg_fitness = sum(ind.fitness for ind in population) / len(population)
+    
+    plotter.update_history(best_individual.fitness, avg_fitness)
+    
     print(f"Epoka 0, najlepsze przystosowanie: {best_individual.fitness}")
 
     for generation in range(1, num_epochs + 1):
@@ -124,6 +131,11 @@ def run_genetic_algorithm():
         population = new_population
 
         current_best = optimization_func(population, key=lambda ind: ind.fitness)
+        
+        avg_fitness = sum(ind.fitness for ind in population) / len(population)
+        
+        plotter.update_history(current_best.fitness, avg_fitness)
+        
         if (config.optimization_type == "max" and current_best.fitness > best_individual.fitness) or \
            (config.optimization_type == "min" and current_best.fitness < best_individual.fitness):
             best_individual = current_best
@@ -137,4 +149,6 @@ def run_genetic_algorithm():
     execution_time = end_time - start_time
     print(f"Czas wykonania algorytmu: {execution_time:.2f} sekund")
 
-    return best_individual, execution_time
+    plotter.show_results_window(best_individual, execution_time)
+
+    return best_individual, execution_time, plotter

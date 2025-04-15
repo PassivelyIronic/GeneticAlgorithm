@@ -194,10 +194,14 @@ class MainWindow(Singleton):
             config.inversion_probability = float(self.inversion_propability_entry.get())
             config.optimization_type = "max" if self.maximization_var.get() else "min"
             
-            best_solution, execution_time = run_genetic_algorithm()
+            best_solution, execution_time, plotter = run_genetic_algorithm()
             
             results = f"Najlepsze rozwiązanie: {best_solution.chromosome_values}\nWartość funkcji celu: {best_solution.fitness}\nCzas wykonania: {execution_time} sekund\n"
 
             self.save_results_to_file(results)
+            
+            
         except Exception as e:
             print(f"Błąd: {str(e)}")
+            import traceback
+            traceback.print_exc()
