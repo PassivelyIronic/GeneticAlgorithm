@@ -13,10 +13,8 @@ class Individual:
         self.chromosome_values = []
 
     def evaluate(self, fitness_func=None, bounds=None):
-        """Dekoduje chromosomy i oblicza wartość funkcji fitness"""
         self.chromosome_values = []
-    
-        # Use bounds if provided, otherwise use config defaults
+
         range_start = bounds[0] if bounds else config.range_start
         range_end = bounds[1] if bounds else config.range_end
     
@@ -28,7 +26,6 @@ class Individual:
                 print(f"Warning: Chromosome decode failed.")
                 self.chromosome_values.append(0)
 
-        # Use provided fitness_func if available, otherwise use the imported one
         if fitness_func:
             self.fitness = fitness_func(self)
         else:
@@ -39,7 +36,6 @@ class Individual:
 
 
     def apply_mutation(self, mutation_rate=0.3, method="single_point"):
-        """Aplikuje mutację do chromosomów używając funkcji z mutation.py"""
         for chromosome in self.chromosomes:
             if method == "single_point":
                 single_point_mutation(chromosome, probability=mutation_rate)

@@ -43,7 +43,7 @@ class Population:
         offspring2 = Individual(self.num_variables, self.bits_per_variable, self.precision, False)
 
         for i in range(self.num_variables):
-            if parent1.chromosomes[i] and parent2.chromosomes[i]:  # Check if chromosomes exist
+            if parent1.chromosomes[i] and parent2.chromosomes[i]:
                 if method == "single_point":
                     child1_chrom, child2_chrom = single_point_crossover(
                         parent1.chromosomes[i], parent2.chromosomes[i]
@@ -59,12 +59,10 @@ class Population:
                 else:
                     raise ValueError(f"Unknown crossover method: {method}")
             
-                # Only assign chromosomes if they are not None
                 if child1_chrom is not None and child2_chrom is not None:
                     offspring1.chromosomes[i] = child1_chrom
                     offspring2.chromosomes[i] = child2_chrom
                 else:
-                    # If crossover failed, copy parent chromosomes instead
                     offspring1.chromosomes[i] = Chromosome(parent1.chromosomes[i].get_chromosome_len(), False)
                     offspring1.chromosomes[i].set_chromosome(parent1.chromosomes[i].chromosome.copy())
                 
@@ -93,32 +91,25 @@ class Population:
 
         new_population = []
 
-        # Elitaryzm - zachowujemy najlepsze osobniki
         if self.config.elite_size > 0:
             new_population.extend(self.individuals[:self.config.elite_size])
 
-        # Generujemy nową populację
         while len(new_population) < self.size:
-            # Selekcja rodziców
             parent1 = self.select()
             parent2 = self.select()
 
-            # Krzyżowanie z określonym prawdopodobieństwem
             if random.random() < self.config.crossover_probability:
                 offspring1, offspring2 = self.crossover(parent1, parent2)
             else:
                 offspring1, offspring2 = parent1, parent2
 
-            # Mutacja potomków
             self.mutate(offspring1)
             self.mutate(offspring2)
 
-            # Dodajemy potomków do nowej populacji
             new_population.append(offspring1)
             if len(new_population) < self.size:
                 new_population.append(offspring2)
 
-        # Zastępujemy starą populację nową
         self.individuals = new_population[:self.size]
         self.generation += 1
 
@@ -129,7 +120,6 @@ class Population:
         for gen in range(self.config.epochs):
             self.evolve(fitness_func, bounds)
 
-            # Obliczamy najlepsze i średnie przystosowanie
             best_fitness = min(ind.fitness for ind in self.individuals) if self.config.optimization_type == "min" else max(ind.fitness for ind in self.individuals)
             avg_fitness = sum(ind.fitness for ind in self.individuals) / self.size
 
@@ -138,6 +128,5 @@ class Population:
 
             print(f"Pokolenie {gen+1}/{self.config.epochs}: Najlepsze przystosowanie = {best_fitness:.6f}, Średnie przystosowanie = {avg_fitness:.6f}")
 
-        # Znajdujemy najlepszego osobnika
         best_individual = min(self.individuals, key=lambda ind: ind.fitness) if self.config.optimization_type == "min" else max(self.individuals, key=lambda ind: ind.fitness)
         return best_individual, best_fitness_history, avg_fitness_history
